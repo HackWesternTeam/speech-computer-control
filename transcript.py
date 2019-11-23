@@ -12,7 +12,6 @@ os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = credential_path
 from google.cloud import speech_v1 as speech
 from google.cloud.speech_v1 import enums
 from six.moves import queue
-
 # Audio recording parameters
 STREAMING_LIMIT = 10000
 SAMPLE_RATE = 16000
@@ -21,8 +20,6 @@ CHUNK_SIZE = int(SAMPLE_RATE / 10)  # 100ms
 RED = '\033[0;31m'
 GREEN = '\033[0;32m'
 YELLOW = '\033[0;33m'
-
-
 def get_current_time():
     """Return Current Time in MS."""
 
@@ -134,6 +131,20 @@ class ResumableMicrophoneStream:
                     break
 
             yield b''.join(data)
+def volume_output(num):
+    mouse.move(1360, 900, absolute=True, duration=0)
+    time.sleep(0.05)
+    mouse.click(button='left')
+    scale = 1242 + ((1472 - 1242)/100)*num
+    time.sleep(0.5)
+    mouse.move(scale, 797, absolute=True, duration=0)
+    time.sleep(0.05)
+    mouse.click(button='left')
+    time.sleep(0.05)
+    mouse.move(1360, 900, absolute=True, duration=0)
+    time.sleep(0.05)
+    mouse.click(button='left')
+
 def keyboard_up():
     for i in range(0,15):
         keyboard.press_and_release('up')
@@ -142,23 +153,38 @@ def keyboard_down():
         keyboard.press_and_release('down')
 def move_mouse(direction, num):
     if direction == "r":
-        mouse.move(100*num, 0, absolute=False, duration=0)
+        mouse.move(25*num, 0, absolute=False, duration=0)
     elif direction == "l":
-        mouse.move(-100*num, 0, absolute=False, duration=0)
+        mouse.move(-25*num, 0, absolute=False, duration=0)
     elif direction == "u":
-        mouse.move(0, -100*num, absolute=False, duration=0)
+        mouse.move(0, -25*num, absolute=False, duration=0)
     elif direction == "d":
-        mouse.move(0, 100*num, absolute=False, duration=0)
+        mouse.move(0, 25*num, absolute=False, duration=0)
 
 
 def processInput(transcript):
     parse = transcript.replace(" ","").lower()
     if "reopen" in parse:
         keyboard.press_and_release("ctrl+shift+t")
+    elif "setvolumeto" in parse:
+        word = parse[parse.find("setvolumeto")+len("setvolumeto"):]
+        number = ""
+        for i in range(len(word)):
+            if word[i].isnumeric():
+                number = number + word[i]
+        if number.isnumeric():
+            number = int(number)
+            volume_output(number)
     elif "clear" in parse:
         keyboard.press_and_release("ctrl+a")
         time.sleep(0.05)
         keyboard.press_and_release("backspace")
+    elif "back" in parse:
+        keyboard.press_and_release("alt+left")
+    elif "forward" in parse:
+        keyboard.press_and_release("alt+right")
+    elif "switch" in parse:
+        keyboard.press_and_release("alt+tab")
     elif "type" in parse:
         send_message = transcript[transcript.lower().find("type ")+len("type "):]
         keyboard.write(send_message)
@@ -166,10 +192,10 @@ def processInput(transcript):
         parse = parse[parse.lower().find("open")+len("open"):]
         test = "www." + parse + ".com"
         webbrowser.open(test)
-    elif "close" in parse:
-        num_tab = parse[parse.find("close")+len("close"):]
+    elif "closetab" in parse:
+        num_tab = parse[parse.find("closetab")+len("closetab"):]
         close_tab = "ctrl+" + num_tab
-        try: 
+        try:
             keyboard.press_and_release(close_tab)
             time.sleep(0.05)
             keyboard.press_and_release('ctrl+w')
@@ -185,8 +211,8 @@ def processInput(transcript):
         keyboard_up()
     elif "scrolldown" in parse:
         keyboard_down()
-    elif "switchto" in parse:
-        num_tab = parse[parse.find("switchto")+len("switchto"):]
+    elif "gototab" in parse:
+        num_tab = parse[parse.find("gototab")+len("gototab"):]
         go_to_tab = "ctrl+" + num_tab
         try:
             keyboard.press_and_release(go_to_tab)
@@ -320,12 +346,14 @@ def listen_print_loop(responses, stream):
 
 
 def main():
-    """start bidirectional streaming from microphone input to speech API"""
     client = speech.SpeechClient()
     config = speech.types.RecognitionConfig(
         encoding=speech.enums.RecognitionConfig.AudioEncoding.LINEAR16,
         sample_rate_hertz=SAMPLE_RATE,
         language_code='en-US',
+        speech_contexts=[speech.types.SpeechContext(
+        phrases=["click", "close tab", "copy", "clear","paste","go to tab", "scroll up", "scroll down", "back","switch","forward","u1","u2","u3","u4","u5","u6","u7","u8","u9","u10","l1","l2","l3","l4","l5","l6","l7","l8","l9","l10","d1","d2","d3","d4","d5","d6","d7","d8","d9","d10",
+"r1","r2","r3","r4","r5","r6","r7","r8","r9","r10", "set volume to"])],
         max_alternatives=1)
     streaming_config = speech.types.StreamingRecognitionConfig(
         config=config,
@@ -371,5 +399,4 @@ def main():
 
 
 if __name__ == '__main__':
-
     main()
