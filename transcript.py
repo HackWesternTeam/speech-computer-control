@@ -1,8 +1,9 @@
 import time
 import re
 import sys
+import os
 import webbrowser
-
+import keyboard
 # uses result_end_time currently only avaialble in v1p1beta, will be in v1 soon
 from google.cloud import speech_v1p1beta1 as speech
 import pyaudio
@@ -16,26 +17,6 @@ CHUNK_SIZE = int(SAMPLE_RATE / 10)  # 100ms
 RED = '\033[0;31m'
 GREEN = '\033[0;32m'
 YELLOW = '\033[0;33m'
-
-
-
-
-
-# custom function to handle inputs
-def processInput(transcript):
-    transcript_space = transcript.replace(" ","").lower()
-    if "newtab" in transcript_space:
-        print("opening new tab")
-        webbrowser.open_new_tab("http://www.google.ca")
-    elif "searchyoutubefor" in transcript_space:
-        query = transcript[transcript.lower().find("youtube for ")+len("youtube for "):]
-        print("searching youtube")
-        webbrowser.open("http://www.youtube.com/results?search_query="+query)
-    elif "searchgooglefor" in transcript_space:
-        query = transcript[transcript.lower().find("google for ")+len("google for "):]
-        print("searching google")
-        webbrowser.open("https://www.google.com/search?q="+query)
-
 
 
 def get_current_time():
@@ -93,7 +74,6 @@ class ResumableMicrophoneStream:
 
     def _fill_buffer(self, in_data, *args, **kwargs):
         """Continuously collect data from the audio stream, into the buffer."""
-
         self._buff.put(in_data)
         return None, pyaudio.paContinue
 
@@ -150,7 +130,38 @@ class ResumableMicrophoneStream:
                     break
 
             yield b''.join(data)
-
+def keyboard_up():
+    for i in range(0,15):
+        keyboard.press_and_release('up')
+def keyboard_down():
+    for i in range(0,15):
+        keyboard.press_and_release('down')
+def processInput(transcript):
+    parse = transcript.replace(" ","").lower()
+    if "open" in parse:
+        parse = parse[parse.lower().find("open")+len("open"):]
+        test = "www." + parse + ".com"
+        webbrowser.open(test)
+    elif "closetab" in parse:
+        num_tab = parse[parse.find("closetab")+len("closetab"):]
+        close_tab = "ctrl+" + num_tab
+        keyboard.press_and_release(close_tab)
+        time.sleep(0.1)
+        keyboard.press_and_release('ctrl+w')
+    elif "searchyoutubefor" in parse:
+        query = parse[parse.find("youtubefor")+len("youtubefor"):]
+        webbrowser.open("http://www.youtube.com/results?search_query="+query)
+    elif "searchgooglefor" in parse:
+        query = parse[parse.find("googlefor")+len("googlefor"):]
+        webbrowser.open("https://www.google.com/search?q="+query)
+    elif "pageup" in parse:
+        keyboard_up()
+    elif "pagedown" in parse:
+        keyboard_down()
+    elif "tab" in parse:
+        num_tab = parse[parse.find("tab")+len("tab"):]
+        go_to_tab = "ctrl+" + num_tab
+        keyboard.press_and_release(go_to_tab)
 
 def listen_print_loop(responses, stream):
     """Iterates through server responses and prints them.
@@ -203,8 +214,8 @@ def listen_print_loop(responses, stream):
             sys.stdout.write(GREEN)
             sys.stdout.write('\033[K')
             sys.stdout.write(str(corrected_time) + ': ' + transcript + '\n')
+
             processInput(transcript)
-            
 
 
             stream.is_final_end_time = stream.result_end_time
@@ -281,4 +292,3 @@ def main():
 if __name__ == '__main__':
 
     main()
-
