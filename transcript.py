@@ -18,6 +18,26 @@ GREEN = '\033[0;32m'
 YELLOW = '\033[0;33m'
 
 
+
+
+
+# custom function to handle inputs
+def processInput(transcript):
+    transcript_space = transcript.replace(" ","").lower()
+    if "newtab" in transcript_space:
+        print("opening new tab")
+        webbrowser.open_new_tab("http://www.google.ca")
+    elif "searchyoutubefor" in transcript_space:
+        query = transcript[transcript.lower().find("youtube for ")+len("youtube for "):]
+        print("searching youtube")
+        webbrowser.open("http://www.youtube.com/results?search_query="+query)
+    elif "searchgooglefor" in transcript_space:
+        query = transcript[transcript.lower().find("google for ")+len("google for "):]
+        print("searching google")
+        webbrowser.open("https://www.google.com/search?q="+query)
+
+
+
 def get_current_time():
     """Return Current Time in MS."""
 
@@ -183,9 +203,8 @@ def listen_print_loop(responses, stream):
             sys.stdout.write(GREEN)
             sys.stdout.write('\033[K')
             sys.stdout.write(str(corrected_time) + ': ' + transcript + '\n')
-            if "opentab" in transcript.replace(" ",""):
-                print("opening tab....")
-                webbrowser.open("https://github.com/spaghettibois/")
+            processInput(transcript)
+            
 
 
             stream.is_final_end_time = stream.result_end_time
@@ -262,3 +281,4 @@ def main():
 if __name__ == '__main__':
 
     main()
+
