@@ -4,9 +4,13 @@ import sys
 import os
 import webbrowser
 import keyboard
-# uses result_end_time currently only avaialble in v1p1beta, will be in v1 soon
-from google.cloud import speech_v1p1beta1 as speech
+import mouse
 import pyaudio
+
+credential_path = r"C:\Users\Simon\Desktop\python1\voice-python-cf6446c5f010.json"
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = credential_path
+from google.cloud import speech_v1 as speech
+from google.cloud.speech_v1 import enums
 from six.moves import queue
 
 # Audio recording parameters
@@ -136,32 +140,113 @@ def keyboard_up():
 def keyboard_down():
     for i in range(0,15):
         keyboard.press_and_release('down')
+def move_mouse(direction, num):
+    if direction == "r":
+        mouse.move(100*num, 0, absolute=False, duration=0)
+    elif direction == "l":
+        mouse.move(-100*num, 0, absolute=False, duration=0)
+    elif direction == "u":
+        mouse.move(0, -100*num, absolute=False, duration=0)
+    elif direction == "d":
+        mouse.move(0, 100*num, absolute=False, duration=0)
+
+
 def processInput(transcript):
     parse = transcript.replace(" ","").lower()
-    if "open" in parse:
+    if "reopen" in parse:
+        keyboard.press_and_release("ctrl+shift+t")
+    elif "clear" in parse:
+        keyboard.press_and_release("ctrl+a")
+        time.sleep(0.05)
+        keyboard.press_and_release("backspace")
+    elif "type" in parse:
+        send_message = transcript[transcript.lower().find("type ")+len("type "):]
+        keyboard.write(send_message)
+    elif "open" in parse:
         parse = parse[parse.lower().find("open")+len("open"):]
         test = "www." + parse + ".com"
         webbrowser.open(test)
-    elif "closetab" in parse:
-        num_tab = parse[parse.find("closetab")+len("closetab"):]
+    elif "close" in parse:
+        num_tab = parse[parse.find("close")+len("close"):]
         close_tab = "ctrl+" + num_tab
-        keyboard.press_and_release(close_tab)
-        time.sleep(0.1)
-        keyboard.press_and_release('ctrl+w')
+        try: 
+            keyboard.press_and_release(close_tab)
+            time.sleep(0.05)
+            keyboard.press_and_release('ctrl+w')
+        except:
+            print("Not Recognized")
     elif "searchyoutubefor" in parse:
         query = parse[parse.find("youtubefor")+len("youtubefor"):]
         webbrowser.open("http://www.youtube.com/results?search_query="+query)
     elif "searchgooglefor" in parse:
         query = parse[parse.find("googlefor")+len("googlefor"):]
         webbrowser.open("https://www.google.com/search?q="+query)
-    elif "pageup" in parse:
+    elif "scrollup" in parse:
         keyboard_up()
-    elif "pagedown" in parse:
+    elif "scrolldown" in parse:
         keyboard_down()
-    elif "tab" in parse:
-        num_tab = parse[parse.find("tab")+len("tab"):]
+    elif "switchto" in parse:
+        num_tab = parse[parse.find("switchto")+len("switchto"):]
         go_to_tab = "ctrl+" + num_tab
-        keyboard.press_and_release(go_to_tab)
+        try:
+            keyboard.press_and_release(go_to_tab)
+        except:
+            print("Not Recognized")
+    elif "send" in parse:
+        send_message = transcript[transcript.lower().find("send ")+len("send "):]
+        keyboard.write(send_message)
+        time.sleep(0.05)
+        keyboard.press_and_release("enter")
+    elif "click" in parse:
+        mouse.click(button='left')
+    elif "copy" in parse:
+        mouse.click(button='left')
+        time.sleep(0.05)
+        keyboard.press_and_release("ctrl+a")
+        time.sleep(0.05)
+        keyboard.press_and_release("ctrl+c")
+    elif "paste" in parse:
+        mouse.click(button='left')
+        time.sleep(0.05)
+        keyboard.press_and_release("ctrl+v")
+    elif "r" in parse:
+        word = parse[parse.find("r")+len("r"):]
+        number = ""
+        for i in range(len(word)):
+            if word[i].isnumeric():
+                number = number + word[i]
+        if number.isnumeric():
+            number = int(number)
+            move_mouse("r",number)
+    elif "l" in parse:
+        word = parse[parse.find("l")+len("l"):]
+        number = ""
+        for i in range(len(word)):
+            if word[i].isnumeric():
+                number = number + word[i]
+        if number.isnumeric():
+            number = int(number)
+            move_mouse("l",number)
+    elif "u" in parse:
+        word = parse[parse.find("u")+len("u"):]
+        number = ""
+        for i in range(len(word)):
+            if word[i].isnumeric():
+                number = number + word[i]
+        if number.isnumeric():
+            number = int(number)
+            move_mouse("u",number)
+    elif "d" in parse:
+        word = parse[parse.find("d")+len("d"):]
+        number = ""
+        for i in range(len(word)):
+            if word[i].isnumeric():
+                number = number + word[i]
+        if number.isnumeric():
+            number = int(number)
+            move_mouse("d",number)
+    
+
 
 def listen_print_loop(responses, stream):
     """Iterates through server responses and prints them.
@@ -194,7 +279,6 @@ def listen_print_loop(responses, stream):
 
         result_seconds = 0
         result_nanos = 0
-
         if result.result_end_time.seconds:
             result_seconds = result.result_end_time.seconds
 
@@ -203,7 +287,6 @@ def listen_print_loop(responses, stream):
 
         stream.result_end_time = int((result_seconds * 1000)
                                      + (result_nanos / 1000000))
-
         corrected_time = (stream.result_end_time - stream.bridging_offset
                           + (STREAMING_LIMIT * stream.restart_counter))
         # Display interim results, but with a carriage return at the end of the
@@ -217,7 +300,6 @@ def listen_print_loop(responses, stream):
 
             processInput(transcript)
 
-
             stream.is_final_end_time = stream.result_end_time
             stream.last_transcript_was_final = True
 
@@ -229,17 +311,16 @@ def listen_print_loop(responses, stream):
                 stream.closed = True
                 break
 
-        # else:
-        #     sys.stdout.write(RED)
-        #     sys.stdout.write('\033[K')
-        #     sys.stdout.write(str(corrected_time) + ': ' + transcript + '\r')
 
-        #     stream.last_transcript_was_final = False
+        else:
+            sys.stdout.write(RED)
+            sys.stdout.write('\033[K')
+            sys.stdout.write(str(corrected_time) + ': ' + transcript + '\r')
+            stream.last_transcript_was_final = False
 
 
 def main():
     """start bidirectional streaming from microphone input to speech API"""
-
     client = speech.SpeechClient()
     config = speech.types.RecognitionConfig(
         encoding=speech.enums.RecognitionConfig.AudioEncoding.LINEAR16,
