@@ -1,6 +1,7 @@
 import time
 import re
 import sys
+import webbrowser
 
 # uses result_end_time currently only avaialble in v1p1beta, will be in v1 soon
 from google.cloud import speech_v1p1beta1 as speech
@@ -182,6 +183,10 @@ def listen_print_loop(responses, stream):
             sys.stdout.write(GREEN)
             sys.stdout.write('\033[K')
             sys.stdout.write(str(corrected_time) + ': ' + transcript + '\n')
+            if "opentab" in transcript.replace(" ",""):
+                print("opening tab....")
+                webbrowser.open("https://github.com/spaghettibois/")
+
 
             stream.is_final_end_time = stream.result_end_time
             stream.last_transcript_was_final = True
@@ -194,12 +199,12 @@ def listen_print_loop(responses, stream):
                 stream.closed = True
                 break
 
-        else:
-            sys.stdout.write(RED)
-            sys.stdout.write('\033[K')
-            sys.stdout.write(str(corrected_time) + ': ' + transcript + '\r')
+        # else:
+        #     sys.stdout.write(RED)
+        #     sys.stdout.write('\033[K')
+        #     sys.stdout.write(str(corrected_time) + ': ' + transcript + '\r')
 
-            stream.last_transcript_was_final = False
+        #     stream.last_transcript_was_final = False
 
 
 def main():
