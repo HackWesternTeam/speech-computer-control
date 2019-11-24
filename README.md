@@ -1,4 +1,4 @@
-# accessibility voice recognition
+# speech computer control
 hack western 6
 Demo video: https://youtu.be/jGUPjDWyO8Q
 
