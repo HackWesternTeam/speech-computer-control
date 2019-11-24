@@ -17,9 +17,6 @@ STREAMING_LIMIT = 10000
 SAMPLE_RATE = 16000
 CHUNK_SIZE = int(SAMPLE_RATE / 10)  # 100ms
 
-RED = '\033[0;31m'
-GREEN = '\033[0;32m'
-YELLOW = '\033[0;33m'
 def get_current_time():
     """Return Current Time in MS."""
 
@@ -132,6 +129,7 @@ class ResumableMicrophoneStream:
 
             yield b''.join(data)
 def volume_output(num):
+    previous = mouse.get_position()
     mouse.move(1360, 900, absolute=True, duration=0)
     time.sleep(0.05)
     mouse.click(button='left')
@@ -144,13 +142,13 @@ def volume_output(num):
     mouse.move(1360, 900, absolute=True, duration=0)
     time.sleep(0.05)
     mouse.click(button='left')
+    time.sleep(0.05)
+    mouse.move(previous[0], previous[1], absolute=True, duration=0)
 
 def keyboard_up():
-    for i in range(0,15):
-        keyboard.press_and_release('up')
+    mouse.wheel(delta=10)
 def keyboard_down():
-    for i in range(0,15):
-        keyboard.press_and_release('down')
+    mouse.wheel(delta=-10)
 def move_mouse(direction, num):
     if direction == "r":
         mouse.move(25*num, 0, absolute=False, duration=0)
@@ -166,6 +164,36 @@ def processInput(transcript):
     parse = transcript.replace(" ","").lower()
     if "reopen" in parse:
         keyboard.press_and_release("ctrl+shift+t")
+    elif "type" in parse:
+        send_message = transcript[transcript.lower().find("type ")+len("type "):]
+        keyboard.write(send_message)
+    elif "searchyoutubefor" in transcript.lower().replace(" ",""):
+        query = transcript[transcript.lower().find("youtube for ")+len("youtube for "):]
+        webbrowser.open("http://www.youtube.com/results?search_query="+query)
+    elif "searchgooglefor" in transcript.lower().replace(" ",""):
+        query = transcript[transcript.lower().find("google for ")+len("google for "):]
+        webbrowser.open("https://www.google.com/search?q="+query)
+    elif "send" in parse:
+        send_message = transcript[transcript.lower().find("send ")+len("send "):]
+        keyboard.write(send_message)
+        time.sleep(0.05)
+        keyboard.press_and_release("enter")
+    elif "open" in parse:
+        parse = parse[parse.lower().find("open")+len("open"):]
+        test = "www." + parse + ".com"
+        webbrowser.open(test)
+    elif "closewindow" in parse:
+        keyboard.press_and_release("alt+F4")
+    elif "minimizewindow" in parse:
+        keyboard.press_and_release("windows+d")
+    elif "rightclick" in parse:
+        mouse.right_click()
+    elif "start" in parse:
+        mouse.move(5, 890, absolute=True, duration=0)
+        time.sleep(0.05)
+        mouse.click(button='left')
+    elif "enter" in parse:
+        keyboard.press_and_release("enter")
     elif "setvolumeto" in parse:
         word = parse[parse.find("setvolumeto")+len("setvolumeto"):]
         number = ""
@@ -185,13 +213,8 @@ def processInput(transcript):
         keyboard.press_and_release("alt+right")
     elif "switch" in parse:
         keyboard.press_and_release("alt+tab")
-    elif "type" in parse:
-        send_message = transcript[transcript.lower().find("type ")+len("type "):]
-        keyboard.write(send_message)
-    elif "open" in parse:
-        parse = parse[parse.lower().find("open")+len("open"):]
-        test = "www." + parse + ".com"
-        webbrowser.open(test)
+    elif "fullscreen" in parse:
+        keyboard.press_and_release("f")
     elif "closetab" in parse:
         num_tab = parse[parse.find("closetab")+len("closetab"):]
         close_tab = "ctrl+" + num_tab
@@ -201,12 +224,7 @@ def processInput(transcript):
             keyboard.press_and_release('ctrl+w')
         except:
             print("Not Recognized")
-    elif "searchyoutubefor" in parse:
-        query = parse[parse.find("youtubefor")+len("youtubefor"):]
-        webbrowser.open("http://www.youtube.com/results?search_query="+query)
-    elif "searchgooglefor" in parse:
-        query = parse[parse.find("googlefor")+len("googlefor"):]
-        webbrowser.open("https://www.google.com/search?q="+query)
+        keyboard.press_and_release('ctrl+w')
     elif "scrollup" in parse:
         keyboard_up()
     elif "scrolldown" in parse:
@@ -218,11 +236,6 @@ def processInput(transcript):
             keyboard.press_and_release(go_to_tab)
         except:
             print("Not Recognized")
-    elif "send" in parse:
-        send_message = transcript[transcript.lower().find("send ")+len("send "):]
-        keyboard.write(send_message)
-        time.sleep(0.05)
-        keyboard.press_and_release("enter")
     elif "click" in parse:
         mouse.click(button='left')
     elif "copy" in parse:
@@ -235,10 +248,24 @@ def processInput(transcript):
         mouse.click(button='left')
         time.sleep(0.05)
         keyboard.press_and_release("ctrl+v")
+    elif "zoomin" in parse:
+        keyboard.press("ctrl")
+        time.sleep(0.05)
+        mouse.wheel(delta=5)
+        time.sleep(0.05)
+        keyboard.release("ctrl")
+    elif "zoomout" in parse:
+        keyboard.press("ctrl")
+        time.sleep(0.05)
+        mouse.wheel(delta=-5)
+        time.sleep(0.05)
+        keyboard.release("ctrl")
     elif "r" in parse:
         word = parse[parse.find("r")+len("r"):]
         number = ""
         for i in range(len(word)):
+            if i == 0 and word[i].isnumeric()==False:
+                break
             if word[i].isnumeric():
                 number = number + word[i]
         if number.isnumeric():
@@ -248,6 +275,8 @@ def processInput(transcript):
         word = parse[parse.find("l")+len("l"):]
         number = ""
         for i in range(len(word)):
+            if i == 0 and word[i].isnumeric()==False:
+                break
             if word[i].isnumeric():
                 number = number + word[i]
         if number.isnumeric():
@@ -257,6 +286,8 @@ def processInput(transcript):
         word = parse[parse.find("u")+len("u"):]
         number = ""
         for i in range(len(word)):
+            if i == 0 and word[i].isnumeric()==False:
+                break
             if word[i].isnumeric():
                 number = number + word[i]
         if number.isnumeric():
@@ -266,6 +297,8 @@ def processInput(transcript):
         word = parse[parse.find("d")+len("d"):]
         number = ""
         for i in range(len(word)):
+            if i == 0 and word[i].isnumeric()==False:
+                break
             if word[i].isnumeric():
                 number = number + word[i]
         if number.isnumeric():
@@ -319,9 +352,6 @@ def listen_print_loop(responses, stream):
         # line, so subsequent lines will overwrite them.
 
         if result.is_final:
-
-            sys.stdout.write(GREEN)
-            sys.stdout.write('\033[K')
             sys.stdout.write(str(corrected_time) + ': ' + transcript + '\n')
 
             processInput(transcript)
@@ -332,15 +362,12 @@ def listen_print_loop(responses, stream):
             # Exit recognition if any of the transcribed phrases could be
             # one of our keywords.
             if re.search(r'\b(exit|quit)\b', transcript, re.I):
-                sys.stdout.write(YELLOW)
                 sys.stdout.write('Exiting...\n')
                 stream.closed = True
                 break
 
 
         else:
-            sys.stdout.write(RED)
-            sys.stdout.write('\033[K')
             sys.stdout.write(str(corrected_time) + ': ' + transcript + '\r')
             stream.last_transcript_was_final = False
 
@@ -352,8 +379,8 @@ def main():
         sample_rate_hertz=SAMPLE_RATE,
         language_code='en-US',
         speech_contexts=[speech.types.SpeechContext(
-        phrases=["click", "close tab", "copy", "clear","paste","go to tab", "scroll up", "scroll down", "back","switch","forward","u1","u2","u3","u4","u5","u6","u7","u8","u9","u10","l1","l2","l3","l4","l5","l6","l7","l8","l9","l10","d1","d2","d3","d4","d5","d6","d7","d8","d9","d10",
-"r1","r2","r3","r4","r5","r6","r7","r8","r9","r10", "set volume to"])],
+        phrases=["l20","l30","l40","u20","u30","u40","r20","r30","r40","d20","d30","d40","u1","u2","u3","u4","u5","u6","u7","u8","u9","u10","l1","l2","l3","l4","l5","l6","l7","l8","l9","l10","d1","d2","d3","d4","d5","d6","d7","d8","d9","d10",
+"r1","r2","r3","r4","r5","r6","r7","r8","r9","r10", "set volume to","minimize window","right click","click", "close tab", "copy", "clear","paste","go to tab", "scroll up", "scroll down", "fullscreen", "back","switch","forward","enter","zoomin","zoomout"])],
         max_alternatives=1)
     streaming_config = speech.types.StreamingRecognitionConfig(
         config=config,
@@ -361,7 +388,6 @@ def main():
 
     mic_manager = ResumableMicrophoneStream(SAMPLE_RATE, CHUNK_SIZE)
     print(mic_manager.chunk_size)
-    sys.stdout.write(YELLOW)
     sys.stdout.write('\nListening, say "Quit" or "Exit" to stop.\n\n')
     sys.stdout.write('End (ms)       Transcript Results/Status\n')
     sys.stdout.write('=====================================================\n')
@@ -369,7 +395,6 @@ def main():
     with mic_manager as stream:
 
         while not stream.closed:
-            sys.stdout.write(YELLOW)
             sys.stdout.write('\n' + str(
                 STREAMING_LIMIT * stream.restart_counter) + ': NEW REQUEST\n')
 
