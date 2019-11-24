@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="demo.css">
+
+    <title>Voice Recognition</title>
+</head>
+<body class="container">
+    <div class="title jumbotron">
+        <h1>Operating Computer with Google Speech API</h1>
+        <h3>Simon Yan & Pratham Thukral</h3>
+        <a href="https://github.com/spaghettibois/mama-mia"><button class="btn btn-success">Github Repo.</button></a>
+    </div>
+        <div class="card">
+            <div class="card-body">
+                <h3 class="card-title">Description</h3>
+                <p class="card-text">We had noticed a significant lack of accessibility features in some of the most common devices used: computers. We did some research on other methods that could help people with accessiblilty issues. We came across solutions such as embedding keyboards in peoples skin, using high speed (expensive) infrared cameras to track eye movement, or facial movement detection. However all of these felt too invasive or too complicated.
+                <hr>
+                With the help of <a href="https://cloud.google.com/speech-to-text/">Google's Cloud Speech recognition API</a> and open source code, we were able to create a voice-recognition software to help detect voice commands for a computer.
+                </p>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body">
+                <h3 class="card-title">Cheat Sheet</h3>
+                <table class="table table-striped table-bordered">
+                    <thead class="thead-dark">
+                        <th>Voice Command</th>
+                        <th>Description</th>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>open <span class="keyword">webpage</span></td>
+                            <td>Opens a webpage. Currently only supports: http://www.{webpage}.com</td>
+                        </tr>
+                        <tr>
+                            <td>search Google for <span class="keyword">search query</span></td>
+                            <td>Searches Google in a new tab for your query</td>
+                        </tr>
+                        <tr>
+                            <td>search Youtube for <span class="keyword">search query</span></td>
+                            <td>Searches Youtube in a new tab for your query</td>
+                        </tr>
+                        <tr>
+                            <td>switch</td>
+                            <td>Switches windows ≈ alt+tab</td>
+                        </tr>
+                        <tr>
+                            <td>back</td>
+                            <td>Goes back a page in history in Chrome</td>
+                        </tr>
+                        <tr>
+                            <td>forward</td>
+                            <td>Goes forward a page in history in Chrome</td>
+                        </tr>
+                        <tr>
+                            <td>close tab</td>
+                            <td>Closes current chrome tab ≈ ctrl+w</td>
+                        </tr>
+                        <tr>
+                            <td>reopen tab</td>
+                            <td>Repoens recently closed tab ≈ ctrl+shift+t</td>
+                        </tr>
+                        <tr>
+                            <td>close tab <span class="keyword">number</span></td>
+                            <td>Closes a specific chrome tab</td>
+                        </tr>
+                        <tr>
+                            <td>go to tab <span class="keyword">number</span></td>
+                            <td>Goes to a specific tab number</td>
+                        </tr>
+                        <tr>
+                            <td>type <span class="keyword">text</span></td>
+                            <td>Starts typing wherever your cursor is</td>
+                        </tr>
+                        <tr>
+                            <td>scroll up</td>
+                            <td>scrolls up</td>
+                        </tr>
+                        <tr>
+                            <td>scroll down</td>
+                            <td>scrolls down</td>
+                        </tr>
+                        <tr>
+                            <td>send</td>
+                            <td>Used in messenger applications ≈ enter</td>
+                        </tr>
+                        <tr>
+                            <td>copy</td>
+                            <td>Selects all and copies ≈ ctrl+a then ctrl+c</td>
+                        </tr>
+                        <tr>
+                            <td>paste</td>
+                            <td>Pastes selection ≈ ctrl+v</td>
+                        </tr>
+                        <tr>
+                            <td>clear</td>
+                            <td>Clear all text ≈ ctrl+a then backspace</td>
+                        </tr>
+                        <tr>
+                            <td>set volume to <span class="keyword">number</span></td>
+                            <td>Sets system volume to a number</td>
+                        </tr>
+                        <tr>
+                            <td>l <span class="keyword">number</span></td>
+                            <td>Moves the mouse cursor left in 25 pixel increments</td>
+                        </tr>
+                        <tr>
+                            <td>r <span class="keyword">number</span></td>
+                            <td>Moves the mouse cursor right in 25 pixel increments</td>
+                        </tr>
+                        <tr>
+                            <td>u <span class="keyword">number</span></td>
+                            <td>Moves the mouse cursor up in 25 pixel increments</td>
+                        </tr>
+                        <tr>
+                            <td>d <span class="keyword">number</span></td>
+                            <td>Moves the mouse cursor down in 25 pixel increments</td>
+                        </tr>
+                        <tr>
+                            <td>click</td>
+                            <td>Initiates a click event where the cursor is</td>
+                        </tr>
+                        <tr>
+                            <td>start</td>
+                            <td>Simulates Start/Windows key press</td>
+                        </tr>
+                        <tr>
+                            <td>open application <span class="keyword">application name</span></td>
+                            <td>Opens the application of choice</td>
+                        </tr>
+                        <tr class="bg-warning">    
+                            <td>exit</td>
+                            <td>Stops the speech-to-text process</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
