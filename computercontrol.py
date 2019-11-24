@@ -146,9 +146,9 @@ def volume_output(num):
     mouse.move(previous[0], previous[1], absolute=True, duration=0)
 
 def keyboard_up():
-    mouse.wheel(delta=10)
+    mouse.wheel(delta=7)
 def keyboard_down():
-    mouse.wheel(delta=-10)
+    mouse.wheel(delta=-7)
 def move_mouse(direction, num):
     if direction == "r":
         mouse.move(25*num, 0, absolute=False, duration=0)
@@ -180,8 +180,9 @@ def processInput(transcript):
         keyboard.press_and_release("enter")
     elif "open" in parse:
         parse = parse[parse.lower().find("open")+len("open"):]
-        test = "www." + parse + ".com"
-        webbrowser.open(test)
+        if parse.replace(" ","") != "":
+            test = "www." + parse + ".com"
+            webbrowser.open(test)
     elif "closewindow" in parse:
         keyboard.press_and_release("alt+F4")
     elif "minimizewindow" in parse:
