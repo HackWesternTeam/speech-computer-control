@@ -25,7 +25,6 @@ def get_current_time():
 
 class ResumableMicrophoneStream:
     """Opens a recording stream as a generator yielding the audio chunks."""
-
     def __init__(self, rate, chunk_size):
         self._rate = rate
         self.chunk_size = chunk_size
@@ -309,18 +308,6 @@ def processInput(transcript):
 
 
 def listen_print_loop(responses, stream):
-    """Iterates through server responses and prints them.
-    The responses passed is a generator that will block until a response
-    is provided by the server.
-    Each response may contain multiple results, and each result may contain
-    multiple alternatives; for details, see https://goo.gl/tjCPAU.  Here we
-    print only the transcription for the top alternative of the top result.
-    In this case, responses are provided for interim results as well. If the
-    response is an interim one, print a line feed at the end of it, to allow
-    the next result to overwrite it, until the response is a final one. For the
-    final one, print a newline to preserve the finalized transcription.
-    """
-
     for response in responses:
 
         if get_current_time() - stream.start_time > STREAMING_LIMIT:
@@ -367,7 +354,6 @@ def listen_print_loop(responses, stream):
                 stream.closed = True
                 break
 
-
         else:
             sys.stdout.write(str(corrected_time) + ': ' + transcript + '\r')
             stream.last_transcript_was_final = False
@@ -380,8 +366,8 @@ def main():
         sample_rate_hertz=SAMPLE_RATE,
         language_code='en-US',
         speech_contexts=[speech.types.SpeechContext(
-        phrases=["l20","l30","l40","u20","u30","u40","r20","r30","r40","d20","d30","d40","u1","u2","u3","u4","u5","u6","u7","u8","u9","u10","l1","l2","l3","l4","l5","l6","l7","l8","l9","l10","d1","d2","d3","d4","d5","d6","d7","d8","d9","d10",
-"r1","r2","r3","r4","r5","r6","r7","r8","r9","r10", "set volume to","minimize window","right click","click", "close tab", "copy", "clear","paste","go to tab", "scroll up", "scroll down", "fullscreen", "back","switch","forward","enter","zoomin","zoomout"])],
+        phrases=["right click","click","l20","l30","l40","u20","u30","u40","r20","r30","r40","d20","d30","d40","u1","u2","u3","u4","u5","u6","u7","u8","u9","u10","l1","l2","l3","l4","l5","l6","l7","l8","l9","l10","d1","d2","d3","d4","d5","d6","d7","d8","d9","d10",
+"r1","r2","r3","r4","r5","r6","r7","r8","r9","r10", "set volume to","minimize window", "close tab", "copy", "clear","paste","go to tab", "scroll up", "scroll down", "fullscreen", "back","switch","forward","enter","zoomin","zoomout"])],
         max_alternatives=1)
     streaming_config = speech.types.StreamingRecognitionConfig(
         config=config,
