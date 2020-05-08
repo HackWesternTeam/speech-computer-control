@@ -7,7 +7,7 @@ import keyboard
 import mouse
 import pyaudio
 
-credential_path = r"C:\Users\Simon\Desktop\python1\voice-python-cf6446c5f010.json"
+credential_path = r"{{credentials json}}"
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = credential_path
 from google.cloud import speech_v1 as speech
 from google.cloud.speech_v1 import enums
