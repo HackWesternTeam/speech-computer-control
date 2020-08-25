@@ -185,6 +185,11 @@ def send_message(transcript):
     sleep()
     keyboard.press_and_release("enter")
 
+def clear_message(transcript):
+    keyboard.press_and_release("ctrl+a")
+    sleep()
+    keyboard.press_and_release("backspace")
+
 def open_site(transcript):
     parse = transcript[transcript.lower().find("open ")+len("open "):]
     if parse.replace(" ","") != "":
@@ -200,6 +205,15 @@ def minimize_window(transcript):
 def right_click(transcript):
     mouse.right_click()
 
+def enter_key(transcript):
+    keyboard.press_and_release("enter")
+
+def back_key(transcript):
+    keyboard.press_and_release("alt+left")
+
+def forward_key(transcript):
+    keyboard.press_and_release("alt+right")
+
 def next_cycle(transcript):
     print("Not recognized")
 
@@ -211,7 +225,11 @@ parse_dict = {
     "open" :  open_site ,
     "close" :  close_window ,
     "minimize" :  minimize_window ,
-    "right" : right_click
+    "right" : right_click ,
+    "enter" : enter_key ,
+    "clear" : clear_message ,
+    "back"  : back_key ,
+    "forward" : forward_key
 }
 
 def processInput(transcript):
