@@ -7,7 +7,7 @@ import keyboard
 import mouse
 import pyaudio
 
-credential_path = r"{{credentials json}}"
+credential_path = r"C:\Users\Simon\Desktop\voice-python.json"
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = credential_path
 from google.cloud import speech_v1 as speech
 from google.cloud.speech_v1 import enums
@@ -127,6 +127,11 @@ class ResumableMicrophoneStream:
                     break
 
             yield b''.join(data)
+
+
+
+def sleep():
+    time.sleep(0.05)
 def volume_output(num):
     previous = mouse.get_position()
     mouse.move(1360, 900, absolute=True, duration=0)
@@ -158,9 +163,63 @@ def move_mouse(direction, num):
     elif direction == "d":
         mouse.move(0, 25*num, absolute=False, duration=0)
 
+def reopen(transcript):
+    keyboard.press_and_release("ctrl+shift+t")
+
+def search_for(transcript):
+    parse = transcript.replace(" ","").lower()
+    if "youtubefor" in parse:
+        query = transcript[transcript.lower().find("youtube for ")+len("youtube for "):]
+        webbrowser.open("http://www.youtube.com/results?search_query="+query)
+    elif "googlefor" in parse:
+        query = transcript[transcript.lower().find("google for ")+len("google for "):]
+        webbrowser.open("https://www.google.com/search?q="+query)
+
+def type_message(transcript):
+    send_message = transcript[transcript.lower().find("type ")+len("type "):]
+    keyboard.write(send_message)
+
+def send_message(transcript):
+    send_message = transcript[transcript.lower().find("send ")+len("send "):]
+    keyboard.write(send_message)
+    sleep()
+    keyboard.press_and_release("enter")
+
+def open_site(transcript):
+    parse = transcript[transcript.lower().find("open ")+len("open "):]
+    if parse.replace(" ","") != "":
+        test = "www." + parse + ".com"
+        webbrowser.open(test)
+
+def close_window(transcript):
+    keyboard.press_and_release("alt+F4")
+
+def minimize_window(transcript):
+    keyboard.press_and_release("windows+d")
+
+def right_click(transcript):
+    mouse.right_click()
+
+def next_cycle(transcript):
+    print("Not recognized")
+
+parse_dict = {
+    "reopen" :  reopen , 
+    "search" :  search_for ,  
+    "type" :  type_message ,
+    "send" :  send_message ,
+    "open" :  open_site ,
+    "close" :  close_window ,
+    "minimize" :  minimize_window ,
+    "right" : right_click
+}
 
 def processInput(transcript):
-    parse = transcript.replace(" ","").lower()
+
+    words = transcript.split()
+    parse_dict.get(words[0], next_cycle)(transcript)
+
+    """
     if "reopen" in parse:
         keyboard.press_and_release("ctrl+shift+t")
     elif "type" in parse:
@@ -304,10 +363,23 @@ def processInput(transcript):
         if number.isnumeric():
             number = int(number)
             move_mouse("d",number)
+    """
     
 
 
 def listen_print_loop(responses, stream):
+    """Iterates through server responses and prints them.
+    The responses passed is a generator that will block until a response
+    is provided by the server.
+    Each response may contain multiple results, and each result may contain
+    multiple alternatives; for details, see https://goo.gl/tjCPAU.  Here we
+    print only the transcription for the top alternative of the top result.
+    In this case, responses are provided for interim results as well. If the
+    response is an interim one, print a line feed at the end of it, to allow
+    the next result to overwrite it, until the response is a final one. For the
+    final one, print a newline to preserve the finalized transcription.
+    """
+
     for response in responses:
 
         if get_current_time() - stream.start_time > STREAMING_LIMIT:
@@ -366,7 +438,7 @@ def main():
         sample_rate_hertz=SAMPLE_RATE,
         language_code='en-US',
         speech_contexts=[speech.types.SpeechContext(
-        phrases=["right click","click","l20","l30","l40","u20","u30","u40","r20","r30","r40","d20","d30","d40","u1","u2","u3","u4","u5","u6","u7","u8","u9","u10","l1","l2","l3","l4","l5","l6","l7","l8","l9","l10","d1","d2","d3","d4","d5","d6","d7","d8","d9","d10",
+        phrases=["type","right click","click","l20","l30","l40","u20","u30","u40","r20","r30","r40","d20","d30","d40","u1","u2","u3","u4","u5","u6","u7","u8","u9","u10","l1","l2","l3","l4","l5","l6","l7","l8","l9","l10","d1","d2","d3","d4","d5","d6","d7","d8","d9","d10",
 "r1","r2","r3","r4","r5","r6","r7","r8","r9","r10", "set volume to","minimize window", "close tab", "copy", "clear","paste","go to tab", "scroll up", "scroll down", "fullscreen", "back","switch","forward","enter","zoomin","zoomout"])],
         max_alternatives=1)
     streaming_config = speech.types.StreamingRecognitionConfig(
